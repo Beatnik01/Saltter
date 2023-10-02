@@ -66,6 +66,9 @@ export default function PostTweetForm() {
     const { files } = e.target;
 
     if (files && files.length === 1) {
+      if (files[0].size > 1024 * 1024) {
+        return alert("Please choose a file smaller than 1MB.");
+      }
       setFile(files[0]);
     }
   };
