@@ -9,6 +9,7 @@ const Form = styled.form`
   flex-direction: column;
   gap: 10px;
 `;
+
 const TextArea = styled.textarea`
   border: 2px solid white;
   padding: 20px;
@@ -28,6 +29,7 @@ const TextArea = styled.textarea`
     border-color: #1d9bf0;
   }
 `;
+
 const AttechFileButton = styled.label`
   padding: 10px 0px;
   color: #1d9bf0;
@@ -38,9 +40,11 @@ const AttechFileButton = styled.label`
   font-weight: 600;
   cursor: pointer;
 `;
+
 const AttechFileInput = styled.input`
   display: none;
 `;
+
 const SubmitBtn = styled.input`
   background-color: #1d9bf0;
   color: white;
@@ -59,19 +63,22 @@ export default function PostTweetForm() {
   const [isLoading, setLoading] = useState(false);
   const [tweet, setTweet] = useState("");
   const [file, setFile] = useState<File | null>(null);
+
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTweet(e.target.value);
   };
+
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
 
     if (files && files.length === 1) {
       if (files[0].size > 1024 * 1024) {
-        return alert("Please choose a file smaller than 1MB.");
+        return window.alert("Please choose a file smaller than 1MB.");
       }
       setFile(files[0]);
     }
   };
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const user = auth.currentUser;
     e.preventDefault();
@@ -100,6 +107,7 @@ export default function PostTweetForm() {
       setLoading(false);
     }
   };
+
   return (
     <Form onSubmit={onSubmit}>
       <TextArea
