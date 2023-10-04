@@ -3,8 +3,8 @@ import { auth, db, storage } from "../firebase";
 import React, { useEffect, useState } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
-import { collection, doc, getDocs, limit, orderBy, query, where } from "firebase/firestore";
-import { ITweet } from "../components/Timeline";
+import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
+import { ITweet } from "../components/timeline";
 import Tweet from "../components/tweet";
 
 const Wrapper = styled.div`
@@ -40,7 +40,12 @@ const Name = styled.span`
   font-size: 22px;
 `;
 
-const NameInput = styled.input``;
+const NameInput = styled.input`
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid white;
+  color: white;
+`;
 
 const Edit = styled.div`
   display: flex;
@@ -58,9 +63,30 @@ const EditButton = styled.button`
   cursor: pointer;
 `;
 
-const SaveButton = styled.button``;
+const SaveButton = styled.button`
+  background-color: green;
+  color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0px 5px;
+`;
 
-const CancelButton = styled.button``;
+const CancelButton = styled.button`
+  background-color: tomato;
+  color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
+`;
 
 const Tweets = styled.div`
   display: flex;

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ITweet } from "./Timeline";
+import { ITweet } from "../components/timeline";
 import { auth, db, storage } from "../firebase";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -16,18 +16,19 @@ const Wrapper = styled.div`
 const Column = styled.div``;
 
 const Photo = styled.img`
-  width: 100px;
-  height: 100px;
+  width: 500px;
+  height: 500px;
   border-radius: 15px;
+  margin: 20px 0px;
 `;
 
 const Username = styled.span`
   font-weight: 600;
-  font-size: 15px;
+  font-size: 20px;
 `;
 
 const Payload = styled.p`
-  margin: 10px 0px;
+  margin-bottom: 20px;
   font-size: 18px;
 `;
 
