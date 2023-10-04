@@ -3,7 +3,7 @@ import { auth, db, storage } from "../firebase";
 import React, { useEffect, useState } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
-import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
+import { collection, doc, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { ITweet } from "../components/Timeline";
 import Tweet from "../components/tweet";
 
@@ -27,15 +27,41 @@ const AvatarUpload = styled.label`
     width: 80%;
   }
 `;
+
 const AvatarImg = styled.img`
   width: 100%;
 `;
+
 const AvatarInput = styled.input`
   display: none;
 `;
+
 const Name = styled.span`
   font-size: 22px;
 `;
+
+const NameInput = styled.input``;
+
+const Edit = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const EditButton = styled.button`
+  background-color: transparent;
+  border: none;
+  svg {
+    width: 20px;
+    color: white !important;
+  }
+  cursor: pointer;
+`;
+
+const SaveButton = styled.button``;
+
+const CancelButton = styled.button``;
+
 const Tweets = styled.div`
   display: flex;
   flex-direction: column;
@@ -47,6 +73,9 @@ export default function Profile() {
   const user = auth.currentUser;
   const [avatar, setAvatar] = useState(user?.photoURL);
   const [tweets, setTweets] = useState<ITweet[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(user?.displayName ?? "Anonymous");
+
   const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
     if (!user) return;
@@ -61,6 +90,7 @@ export default function Profile() {
       });
     }
   };
+
   const fetchTweets = async () => {
     const tweetQuery = query(
       collection(db, "tweets"),
@@ -82,9 +112,33 @@ export default function Profile() {
     });
     setTweets(tweets);
   };
+
   useEffect(() => {
     fetchTweets();
   }, []);
+
+  const onEdit = () => {
+    if (user?.uid !== tweets[0].userId) return;
+    setIsEditing(true);
+  };
+
+  const onSaveEdit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!user || user?.displayName === "") return;
+    try {
+      await updateProfile(user, {
+        displayName: editedName,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    setIsEditing(false);
+  };
+
+  const onCancelEdit = () => {
+    setIsEditing(false);
+    setEditedName(user?.displayName || "Anonymous");
+  };
 
   return (
     <Wrapper>
@@ -107,7 +161,34 @@ export default function Profile() {
         )}
       </AvatarUpload>
       <AvatarInput onChange={onAvatarChange} id="avatar" type="file" accept="image/*" />
-      <Name>{user?.displayName ?? "Anonymous"}</Name>
+      <Edit>
+        {isEditing ? (
+          <>
+            <NameInput
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+            ></NameInput>
+            <SaveButton onClick={onSaveEdit}>Save</SaveButton>
+            <CancelButton onClick={onCancelEdit}>Cancel</CancelButton>
+          </>
+        ) : (
+          <>
+            <Name>{user?.displayName ?? "Anonymous"}</Name>
+            <EditButton onClick={onEdit}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-6 h-6"
+              >
+                <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32l8.4-8.4z" />
+                <path d="M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z" />
+              </svg>
+            </EditButton>
+          </>
+        )}
+      </Edit>
+
       <Tweets>
         {tweets.map((tweet) => (
           <Tweet key={tweet.id} {...tweet} />
