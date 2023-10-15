@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { Error, Input, Switcher, Title, Wrapper, Form } from "../components/auth-components";
 import GtihubButton from "../components/github.btn";
+import GoogleButton from "../components/google.btn";
 
 export default function CreateAccount() {
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ export default function CreateAccount() {
         Don't have an account? <Link to="/create-account">Create one</Link>
       </Switcher>
       <GtihubButton />
+      <GoogleButton />
     </Wrapper>
   );
 }

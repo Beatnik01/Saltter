@@ -13,13 +13,21 @@ const Wrapper = styled.div`
   border-radius: 15px;
 `;
 
-const Column = styled.div``;
+const Column = styled.div`
+  margin-left: 20px;
+`;
+
+const ImageColumn = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const Photo = styled.img`
   width: 500px;
   height: 500px;
   border-radius: 15px;
-  margin: 20px 0px;
+  margin-top: 20px;
 `;
 
 const Username = styled.span`
@@ -30,6 +38,7 @@ const Username = styled.span`
 const Payload = styled.p`
   margin-bottom: 20px;
   font-size: 18px;
+  margin-top: 20px;
 `;
 
 const TextArea = styled.textarea`
@@ -185,9 +194,9 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
     <Wrapper>
       <Username>{username}</Username>
       {photo ? (
-        <Column>
+        <ImageColumn>
           <Photo src={photo} />
-        </Column>
+        </ImageColumn>
       ) : null}
       <Column>
         {isEditing ? (
