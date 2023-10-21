@@ -141,7 +141,7 @@ export default function Profile() {
 
   useEffect(() => {
     fetchTweets();
-  }, []);
+  });
 
   const onEdit = () => {
     if (user?.uid !== tweets[0].userId) return;

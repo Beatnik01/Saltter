@@ -1,48 +1,79 @@
 import { addDoc, collection, updateDoc } from "firebase/firestore";
 import { useState } from "react";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { auth, db, storage } from "../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import EmojiPicker, { Emoji } from "emoji-picker-react";
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 40px;
 `;
 
 const TextArea = styled.textarea`
-  border: 2px solid white;
   padding: 20px;
-  border-radius: 20px;
   font-size: 16px;
   color: white;
   background-color: black;
   width: 100%;
+  height: 80px;
   resize: none;
+  border: none;
+  &:focus {
+    border-bottom: 3px solid red;
+    outline: none;
+  }
   &::placeholder {
-    font: 16px;
+    font-size: 30px;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
       Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   }
-  &:focus {
-    outline: none;
-    border-color: #1d9bf0;
-  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
+const OptionGroup = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
 `;
 
 const AttechFileButton = styled.label`
   padding: 10px 0px;
-  color: #1d9bf0;
   text-align: center;
-  border-radius: 20px;
-  border: 1px solid #1d9bf0;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  width: 25px;
 `;
 
 const AttechFileInput = styled.input`
   display: none;
+`;
+
+const AttechEmoji = styled.div`
+  cursor: pointer;
+  width: 25px;
+  position: relative;
+`;
+
+const EmojiButton = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 300px;
+  height: 300px;
+  background-color: white;
+  border: 1px solid black;
+  z-index: 10;
+  visibility: hidden;
 `;
 
 const SubmitBtn = styled.input`
@@ -63,6 +94,7 @@ export default function PostTweetForm() {
   const [isLoading, setLoading] = useState(false);
   const [tweet, setTweet] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTweet(e.target.value);
@@ -118,9 +150,60 @@ export default function PostTweetForm() {
         value={tweet}
         placeholder="what is happening?"
       />
-      <AttechFileButton htmlFor="file">{file ? "Photo added ✅" : "Add photo"}</AttechFileButton>
-      <AttechFileInput onChange={onFileChange} type="file" id="file" accept="image/*" />
-      <SubmitBtn type="submit" value={isLoading ? "Posting..." : "Post Tweet"} />
+      <ButtonGroup>
+        <OptionGroup>
+          <AttechFileButton htmlFor="file">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+              />
+            </svg>
+          </AttechFileButton>
+          <AttechFileInput onChange={onFileChange} type="file" id="file" accept="image/*" />
+          <AttechEmoji
+            onClick={() => {
+              if (emojiOpen) {
+                setEmojiOpen(false);
+              } else {
+                setEmojiOpen(true);
+              }
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"
+              />
+            </svg>
+            <EmojiButton style={{ visibility: emojiOpen ? "visible" : "hidden" }}>
+              <EmojiPicker
+                onEmojiClick={(e) => {
+                  setTweet(tweet + e.emoji);
+                }}
+              />
+            </EmojiButton>
+          </AttechEmoji>
+        </OptionGroup>
+
+        <SubmitBtn type="submit" value={isLoading ? "Posting..." : "Post Tweet"} />
+      </ButtonGroup>
     </Form>
   );
 }
