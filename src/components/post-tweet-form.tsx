@@ -30,7 +30,7 @@ const Profile = styled.img`
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border: 1px solid white;
+  object-fit: cover;
 `;
 
 const TweetAlign = styled.div`
@@ -57,6 +57,16 @@ const AlignButton = styled.div`
 
 const TextWrapper = styled.div`
   position: relative;
+  svg {
+    position: absolute;
+    background-color: gray;
+    left: -55px;
+    top: 5px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 `;
 
 const TextArea = styled.textarea`
@@ -142,6 +152,8 @@ const SubmitBtn = styled.input`
 `;
 
 export default function PostTweetForm() {
+  const user = auth.currentUser;
+  const profile = user?.photoURL;
   const [isLoading, setLoading] = useState(false);
   const [tweet, setTweet] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -197,6 +209,8 @@ export default function PostTweetForm() {
         createdAt: Date.now(),
         username: user.displayName || "Anonymous",
         userId: user.uid,
+        email: user.email,
+        profile: user.photoURL,
       });
       if (file) {
         const locationRef = ref(storage, `tweets/${user.uid}/${doc.id}`);
@@ -227,7 +241,23 @@ export default function PostTweetForm() {
       </TweetAlign>
       <Form onSubmit={onSubmit}>
         <TextWrapper>
-          <Profile />
+          {profile ? (
+            <Profile src={profile || ""} />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
+
           <TextArea
             required
             rows={1}

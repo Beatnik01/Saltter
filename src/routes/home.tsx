@@ -3,7 +3,6 @@ import PostTweetForm from "../components/post-tweet-form";
 import Timeline from "../components/timeline";
 
 const Wrapper = styled.div`
-  display: grid;
   gap: 50px;
   overflow-y: scroll;
   overflow-y: scroll; /* 항상 스크롤바를 표시하지만 내용이 넘칠 때만 활성화됩니다. */

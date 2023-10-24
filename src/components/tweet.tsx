@@ -3,7 +3,7 @@ import { ITweet } from "../components/timeline";
 import { auth, db, storage } from "../firebase";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const Wrapper = styled.div`
   --border: rgb(47, 51, 54);
@@ -11,6 +11,15 @@ const Wrapper = styled.div`
   border-top: 1px solid var(--border);
   padding-left: 85px;
   position: relative;
+  svg {
+    position: absolute;
+    background-color: gray;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 `;
 
 const Column = styled.div``;
@@ -138,34 +147,11 @@ const AttechFileInput = styled.input`
   display: none;
 `;
 
-export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
+export default function Tweet({ username, photo, tweet, userId, id, email, profile }: ITweet) {
   const user = auth.currentUser;
   const [isEditing, setIsEditing] = useState(false);
   const [editedTweet, setEditedTweet] = useState(tweet);
   const [editFile, setEditFile] = useState<File | null>(null);
-  const [avatar, setAvatar] = useState<string | null | undefined>(user?.photoURL || null);
-
-  useEffect(() => {
-    async function ProfilePhoto() {
-      const locationRef = ref(storage, `avatars/${userId}`);
-
-      if (locationRef !== null) {
-        const avatarUrl = await getDownloadURL(locationRef);
-        setAvatar(avatarUrl);
-      }
-    }
-
-    ProfilePhoto();
-  }, [userId]);
-
-  function shortenUserId(userId: string) {
-    if (userId.length > 5) {
-      return userId.substring(0, 5);
-    }
-    return userId;
-  }
-
-  const sUserId = shortenUserId(userId);
 
   const onDelete = async () => {
     const ok = confirm("Are u sure u want to delete this tweet?");
@@ -226,10 +212,25 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
 
   return (
     <Wrapper>
-      <Profile src={avatar || ""} />
+      {profile ? (
+        <Profile src={profile || ""} />
+      ) : (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="w-6 h-6"
+        >
+          <path
+            fillRule="evenodd"
+            d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
       <Username>
         {username}
-        <UserId>@{sUserId}</UserId>
+        <UserId>@{email}</UserId>
       </Username>
       {photo ? (
         <ImageColumn>

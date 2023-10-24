@@ -12,6 +12,8 @@ export interface ITweet {
   userId: string;
   username: string;
   createdAt: number;
+  email: string;
+  profile: string;
 }
 
 const Wrapper = styled.div`
@@ -27,27 +29,15 @@ const Wrapper = styled.div`
 `;
 
 export default function Timeline() {
-  const [tweets, setTweet] = useState<ITweet[]>([]);
+  const [tweets, setTweets] = useState<ITweet[]>([]);
 
   useEffect(() => {
     let unsubscribe: Unsubscribe | null = null;
     const fetchTweets = async () => {
       const tweetsQuery = query(collection(db, "tweets"), orderBy("createdAt", "desc"), limit(25));
-      /*     const snapshot = await getDocs(tweetsQuery);
-        const tweets = snapshot.docs.map((doc) => {
-          const { tweet, createdAt, userId, username, photo } = doc.data();
-          return {
-            tweet,
-            createdAt,
-            userId,
-            username,
-            photo,
-            id: doc.id,
-          };
-        }); */
       unsubscribe = await onSnapshot(tweetsQuery, (snapshot) => {
         const tweets = snapshot.docs.map((doc) => {
-          const { tweet, createdAt, userId, username, photo } = doc.data();
+          const { tweet, createdAt, userId, username, photo, email, profile } = doc.data();
           return {
             tweet,
             createdAt,
@@ -55,9 +45,11 @@ export default function Timeline() {
             username,
             photo,
             id: doc.id,
+            email,
+            profile,
           };
         });
-        setTweet(tweets);
+        setTweets(tweets);
       });
     };
     fetchTweets();
