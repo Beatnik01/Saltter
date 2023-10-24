@@ -1,41 +1,86 @@
 import { addDoc, collection, updateDoc } from "firebase/firestore";
-import { useState } from "react";
-import styled, { useTheme } from "styled-components";
+import React, { useState } from "react";
+import styled from "styled-components";
 import { auth, db, storage } from "../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import EmojiPicker, { Emoji } from "emoji-picker-react";
+import EmojiPicker from "emoji-picker-react";
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const Form = styled.form`
+  --green: #44d62c;
+  --border: rgb(47, 51, 54);
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 40px;
+  width: 100%;
+  padding: 0px 50px;
+  padding-left: 75px;
+  border-bottom: 1px solid var(--border);
+`;
+
+const Profile = styled.img`
+  position: absolute;
+  left: -55px;
+  top: 5px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid white;
+`;
+
+const TweetAlign = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 70px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+`;
+
+const AlignButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: bold;
+  &:hover {
+    background-color: var(--border);
+  }
+`;
+
+const TextWrapper = styled.div`
+  position: relative;
 `;
 
 const TextArea = styled.textarea`
-  padding: 20px;
-  font-size: 16px;
+  padding: 10px;
+  font-size: 30px;
   color: white;
   background-color: black;
   width: 100%;
-  height: 80px;
   resize: none;
   border: none;
-  &:focus {
-    border-bottom: 3px solid red;
-    outline: none;
-  }
+  outline: none;
+  overflow: hidden;
   &::placeholder {
     font-size: 30px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-      Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
+  border-top: 1px solid var(--border);
+  padding: 5px 10px;
 `;
 
 const OptionGroup = styled.div`
@@ -43,6 +88,7 @@ const OptionGroup = styled.div`
   justify-content: flex-start;
   align-items: center;
   gap: 5px;
+  color: var(--green);
 `;
 
 const AttechFileButton = styled.label`
@@ -77,13 +123,18 @@ const EmojiButton = styled.div`
 `;
 
 const SubmitBtn = styled.input`
-  background-color: #1d9bf0;
+  background-color: black;
   color: white;
+  background-color: var(--green);
+  opacity: 0.5;
   border: none;
-  padding: 10px 0px;
+  padding: 0px 15px;
   border-radius: 20px;
   font-size: 16px;
+  min-width: 36px;
+  min-height: 36px;
   cursor: pointer;
+  font-weight: bold;
   &:hover,
   &:active {
     opacity: 0.8;
@@ -95,9 +146,33 @@ export default function PostTweetForm() {
   const [tweet, setTweet] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+
+  const onToggleAlignButton = (e: React.MouseEvent<HTMLDivElement>) => {
+    const alignButtons = document.querySelectorAll("#AlignButton");
+    alignButtons.forEach((Item) => {
+      const button = Item as HTMLElement;
+      button.style.opacity = "0.5";
+      button.style.border = "none";
+    });
+
+    setIsActive(!isActive);
+    (e.currentTarget as HTMLElement).style.opacity = isActive ? "1" : "0.5";
+    (e.currentTarget as HTMLElement).style.borderBottom = isActive ? "5px solid #44d62c" : "";
+  };
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTweet(e.target.value);
+    const submitBtn = document.getElementById("submitBtn");
+    if (submitBtn) {
+      if (e.target.value !== "") {
+        submitBtn.style.opacity = "0.8";
+      } else {
+        submitBtn.style.opacity = "0.5";
+      }
+    }
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,69 +216,82 @@ export default function PostTweetForm() {
   };
 
   return (
-    <Form onSubmit={onSubmit}>
-      <TextArea
-        required
-        rows={5}
-        maxLength={180}
-        onChange={onChange}
-        value={tweet}
-        placeholder="what is happening?"
-      />
-      <ButtonGroup>
-        <OptionGroup>
-          <AttechFileButton htmlFor="file">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
+    <Wrapper>
+      <TweetAlign>
+        <AlignButton onClick={onToggleAlignButton} id="AlignButton">
+          <span>추천</span>
+        </AlignButton>
+        <AlignButton onClick={onToggleAlignButton} id="AlignButton">
+          <span>팔로우 중</span>
+        </AlignButton>
+      </TweetAlign>
+      <Form onSubmit={onSubmit}>
+        <TextWrapper>
+          <Profile />
+          <TextArea
+            required
+            rows={1}
+            maxLength={180}
+            onChange={onChange}
+            value={tweet}
+            placeholder="무슨 일이 일어나고 있나요?"
+          />
+        </TextWrapper>
+        <ButtonGroup>
+          <OptionGroup>
+            <AttechFileButton htmlFor="file">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                />
+              </svg>
+            </AttechFileButton>
+            <AttechFileInput onChange={onFileChange} type="file" id="file" accept="image/*" />
+            <AttechEmoji
+              onClick={() => {
+                if (emojiOpen) {
+                  setEmojiOpen(false);
+                } else {
+                  setEmojiOpen(true);
+                }
+              }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-              />
-            </svg>
-          </AttechFileButton>
-          <AttechFileInput onChange={onFileChange} type="file" id="file" accept="image/*" />
-          <AttechEmoji
-            onClick={() => {
-              if (emojiOpen) {
-                setEmojiOpen(false);
-              } else {
-                setEmojiOpen(true);
-              }
-            }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"
-              />
-            </svg>
-            <EmojiButton style={{ visibility: emojiOpen ? "visible" : "hidden" }}>
-              <EmojiPicker
-                onEmojiClick={(e) => {
-                  setTweet(tweet + e.emoji);
-                }}
-              />
-            </EmojiButton>
-          </AttechEmoji>
-        </OptionGroup>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"
+                />
+              </svg>
+              <EmojiButton style={{ visibility: emojiOpen ? "visible" : "hidden" }}>
+                <EmojiPicker
+                  onEmojiClick={(e) => {
+                    setTweet(tweet + e.emoji);
+                  }}
+                />
+              </EmojiButton>
+            </AttechEmoji>
+          </OptionGroup>
 
-        <SubmitBtn type="submit" value={isLoading ? "Posting..." : "Post Tweet"} />
-      </ButtonGroup>
-    </Form>
+          <SubmitBtn type="submit" id="submitBtn" value="게시하기" />
+        </ButtonGroup>
+      </Form>
+    </Wrapper>
   );
 }

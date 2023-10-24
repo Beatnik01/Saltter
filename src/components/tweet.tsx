@@ -3,18 +3,25 @@ import { ITweet } from "../components/timeline";
 import { auth, db, storage } from "../firebase";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Wrapper = styled.div`
-  display: gird;
-  grid-template-columns: 3fr 1fr;
+  --border: rgb(47, 51, 54);
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 15px;
+  border-top: 1px solid var(--border);
+  padding-left: 85px;
+  position: relative;
 `;
 
-const Column = styled.div`
-  margin-left: 20px;
+const Column = styled.div``;
+
+const Profile = styled.img`
+  position: absolute;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
 `;
 
 const ImageColumn = styled.div`
@@ -28,6 +35,7 @@ const Photo = styled.img`
   height: 500px;
   border-radius: 15px;
   margin-top: 20px;
+  margin-bottom: 20px;
 `;
 
 const Username = styled.span`
@@ -35,10 +43,15 @@ const Username = styled.span`
   font-size: 20px;
 `;
 
+const UserId = styled.span`
+  margin-left: 5px;
+  font-size: 13px;
+  opacity: 0.5;
+`;
+
 const Payload = styled.p`
-  margin-bottom: 20px;
-  font-size: 18px;
-  margin-top: 20px;
+  margin: 7px 0px;
+  font-size: 16px;
 `;
 
 const TextArea = styled.textarea`
@@ -53,8 +66,6 @@ const TextArea = styled.textarea`
   margin: 20px 0px;
   &::placeholder {
     font: 16px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-      Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   }
   &:focus {
     outline: none;
@@ -132,6 +143,29 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTweet, setEditedTweet] = useState(tweet);
   const [editFile, setEditFile] = useState<File | null>(null);
+  const [avatar, setAvatar] = useState<string | null | undefined>(user?.photoURL || null);
+
+  useEffect(() => {
+    async function ProfilePhoto() {
+      const locationRef = ref(storage, `avatars/${userId}`);
+
+      if (locationRef !== null) {
+        const avatarUrl = await getDownloadURL(locationRef);
+        setAvatar(avatarUrl);
+      }
+    }
+
+    ProfilePhoto();
+  }, [userId]);
+
+  function shortenUserId(userId: string) {
+    if (userId.length > 5) {
+      return userId.substring(0, 5);
+    }
+    return userId;
+  }
+
+  const sUserId = shortenUserId(userId);
 
   const onDelete = async () => {
     const ok = confirm("Are u sure u want to delete this tweet?");
@@ -192,7 +226,11 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
 
   return (
     <Wrapper>
-      <Username>{username}</Username>
+      <Profile src={avatar || ""} />
+      <Username>
+        {username}
+        <UserId>@{sUserId}</UserId>
+      </Username>
       {photo ? (
         <ImageColumn>
           <Photo src={photo} />

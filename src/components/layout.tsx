@@ -3,20 +3,21 @@ import styled from "styled-components";
 import { auth } from "../firebase";
 
 const Wrapper = styled.div`
+  --border: rgb(47, 51, 54);
   display: grid;
-  gap: 20px;
   grid-template-columns: 1fr 4fr;
   height: 100%;
-  padding: 50px 0px;
   width: 100%;
   max-width: 860px;
+  border-right: 1px solid var(--border);
 `;
 
 const Menu = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
+  align-items: flex-end;
+  gap: 10px;
+  border-right: 1px solid var(--border);
 `;
 
 const MenuItem = styled.div`
@@ -24,10 +25,10 @@ const MenuItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid white;
   height: 50px;
   width: 50px;
   border-radius: 50%;
+  margin-right: 20px;
   svg {
     width: 30px;
     fill: white;
@@ -52,7 +53,7 @@ export default function Layout() {
   return (
     <Wrapper>
       <Menu>
-        <Link to="/">
+        <Link to="/" style={{ marginTop: "20px" }}>
           <MenuItem>
             <svg
               xmlns="http://www.w3.org/2000/svg"
