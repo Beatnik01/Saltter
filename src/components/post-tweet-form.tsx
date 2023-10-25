@@ -16,7 +16,6 @@ const Form = styled.form`
   --border: rgb(47, 51, 54);
   display: flex;
   flex-direction: column;
-  gap: 10px;
   width: 100%;
   padding: 0px 50px;
   padding-left: 75px;
@@ -71,16 +70,19 @@ const TextWrapper = styled.div`
 
 const TextArea = styled.textarea`
   padding: 10px;
-  font-size: 30px;
-  color: white;
+  font-size: 20px;
+  color: #e7e9ea;
   background-color: black;
   width: 100%;
   resize: none;
   border: none;
   outline: none;
   overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   &::placeholder {
-    font-size: 30px;
+    font-size: 20px;
   }
 `;
 
@@ -88,9 +90,6 @@ const ButtonGroup = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  border-top: 1px solid var(--border);
-  padding: 5px 10px;
 `;
 
 const OptionGroup = styled.div`
