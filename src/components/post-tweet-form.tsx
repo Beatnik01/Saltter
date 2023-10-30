@@ -157,19 +157,16 @@ export default function PostTweetForm() {
   const [tweet, setTweet] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
-  const [isActive, setIsActive] = useState(false);
+  const [isRecoActive, setIsRecoActive] = useState(false);
+  const [isFollowActive, setIsFollowActive] = useState(false);
 
   const onToggleAlignButton = (e: React.MouseEvent<HTMLDivElement>) => {
-    const alignButtons = document.querySelectorAll("#AlignButton");
-    alignButtons.forEach((Item) => {
-      const button = Item as HTMLElement;
-      button.style.opacity = "0.5";
-      button.style.border = "none";
-    });
-
+    const reco = document.getElementById("recoButton");
+    const follow = document.getElementById("followButton");
     setIsActive(!isActive);
     (e.currentTarget as HTMLElement).style.opacity = isActive ? "1" : "0.5";
     (e.currentTarget as HTMLElement).style.borderBottom = isActive ? "5px solid #44d62c" : "";
+    console.log(isActive);
   };
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -231,10 +228,10 @@ export default function PostTweetForm() {
   return (
     <Wrapper>
       <TweetAlign>
-        <AlignButton onClick={onToggleAlignButton} id="AlignButton">
+        <AlignButton onClick={onToggleAlignButton} id="recoButton">
           <span>추천</span>
         </AlignButton>
-        <AlignButton onClick={onToggleAlignButton} id="AlignButton">
+        <AlignButton onClick={onToggleAlignButton} id="followButton">
           <span>팔로우 중</span>
         </AlignButton>
       </TweetAlign>

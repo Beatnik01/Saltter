@@ -3,7 +3,7 @@ import { ITweet } from "../components/timeline";
 import { auth, db, storage } from "../firebase";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const Wrapper = styled.div`
   --border: rgb(47, 51, 54);
@@ -250,11 +250,36 @@ export default function Tweet({ username, photo, tweet, userId, id, email, profi
   const [isEditing, setIsEditing] = useState(false);
   const [editedTweet, setEditedTweet] = useState(tweet);
   const [editFile, setEditFile] = useState<File | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // 트윗 삭제, 수정 modal
+  const modalRef = useRef<HTMLDivElement | null>(null); // 트위 삭제, 수정 modal
 
-  const toggleModal = () => {
-    setModalOpen(!modalOpen);
+  const openModal = () => {
+    setIsOpen(true);
   };
+
+  useEffect(() => {
+    // 트윗 삭제, 수정 modal
+    const closeModal = (e: MouseEvent) => {
+      if (modalRef.current && modalRef.current.contains(e.target as Node)) {
+        e.stopPropagation();
+        return;
+      }
+      if (modalRef.current !== e.target) {
+        setIsOpen(false);
+      }
+      console.log(modalRef.current, e.target);
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", closeModal);
+    } else {
+      document.removeEventListener("mousedown", closeModal);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", closeModal);
+    };
+  }, [isOpen]);
 
   const onDelete = async () => {
     const ok = confirm("Are u sure u want to delete this tweet?");
@@ -312,7 +337,6 @@ export default function Tweet({ username, photo, tweet, userId, id, email, profi
       setEditFile(files[0]);
     }
   };
-
   return (
     <Wrapper>
       {profile ? (
@@ -343,7 +367,7 @@ export default function Tweet({ username, photo, tweet, userId, id, email, profi
           strokeWidth={1.5}
           stroke="currentColor"
           className="w-6 h-6"
-          onClick={toggleModal}
+          onClick={openModal}
         >
           <path
             strokeLinecap="round"
@@ -351,8 +375,8 @@ export default function Tweet({ username, photo, tweet, userId, id, email, profi
             d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
           />
         </svg>
-        {modalOpen ? (
-          <TweetModalContainer id="TweetModal" className="hidden modal">
+        {isOpen ? (
+          <TweetModalContainer ref={modalRef} id="TweetModal" className="modal">
             <TweetModalDelete>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
