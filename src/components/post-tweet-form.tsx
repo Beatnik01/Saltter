@@ -41,6 +41,7 @@ const TweetAlign = styled.div`
 `;
 
 const AlignButton = styled.div`
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -52,6 +53,16 @@ const AlignButton = styled.div`
   &:hover {
     background-color: var(--border);
   }
+`;
+
+const Underline = styled.div`
+  position: absolute;
+  bottom: 0px;
+  max-width: 56px;
+  width: 100%;
+  height: 4px;
+  background-color: #44d62c;
+  align-self: center;
 `;
 
 const TextWrapper = styled.div`
@@ -157,8 +168,11 @@ export default function PostTweetForm() {
   const [tweet, setTweet] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
-  const [isRecoActive, setIsRecoActive] = useState(false);
-  const [isFollowActive, setIsFollowActive] = useState(false);
+  const [isActive, setIsActive] = useState<number | null>(null);
+
+  const handleButtonClick = (e: number) => {
+    setIsActive(e);
+  };
 
   const onToggleAlignButton = (e: React.MouseEvent<HTMLDivElement>) => {
     const reco = document.getElementById("recoButton");
@@ -228,11 +242,25 @@ export default function PostTweetForm() {
   return (
     <Wrapper>
       <TweetAlign>
-        <AlignButton onClick={onToggleAlignButton} id="recoButton">
+        <AlignButton
+          onClick={() => handleButtonClick(1)}
+          style={{
+            opacity: isActive === 1 ? "1" : "0.5",
+          }}
+          id="recoButton"
+        >
           <span>추천</span>
+          {isActive === 1 ? <Underline></Underline> : ""}
         </AlignButton>
-        <AlignButton onClick={onToggleAlignButton} id="followButton">
+        <AlignButton
+          onClick={() => handleButtonClick(2)}
+          style={{
+            opacity: isActive === 2 ? "1" : "0.5",
+          }}
+          id="FollowButton"
+        >
           <span>팔로우 중</span>
+          {isActive === 2 ? <Underline></Underline> : ""}
         </AlignButton>
       </TweetAlign>
       <Form onSubmit={onSubmit}>
